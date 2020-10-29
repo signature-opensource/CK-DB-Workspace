@@ -1,0 +1,12 @@
+-- SetupConfig: { }
+--
+create transformer on CK.sUserCreate
+as
+begin
+    add parameter @PreferredWorkspaceId int = 0;
+
+    in single part {insert into CK.tUser}
+    begin
+        add column PreferredWorkspaceId = @PreferredWorkspaceId;
+    end
+end

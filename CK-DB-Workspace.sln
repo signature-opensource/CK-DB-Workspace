@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CK.DB.Workspace", "CK.DB.Workspace\CK.DB.Workspace.csproj", "{F5154B84-D210-42B8-8B9C-9DF4037E9C84}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FB5A2B84-C8FF-480A-B1C5-BFF4E194A521}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+		Common\Shared.props = Common\Shared.props
+		Common\SharedKey.snk = Common\SharedKey.snk
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8025306D-E62D-4957-944C-743741206A71}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\TestHelper.config = Tests\TestHelper.config
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CK.DB.Workspace.Tests", "Tests\CK.DB.Workspace.Tests\CK.DB.Workspace.Tests.csproj", "{3C93A47A-A4D7-4D14-BF26-BBA546B92557}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeCakeBuilder", "CodeCakeBuilder\CodeCakeBuilder.csproj", "{356CCEE7-F49B-4148-BA0D-1A9B54A2AD97}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5154B84-D210-42B8-8B9C-9DF4037E9C84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5154B84-D210-42B8-8B9C-9DF4037E9C84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5154B84-D210-42B8-8B9C-9DF4037E9C84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5154B84-D210-42B8-8B9C-9DF4037E9C84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C93A47A-A4D7-4D14-BF26-BBA546B92557}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C93A47A-A4D7-4D14-BF26-BBA546B92557}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C93A47A-A4D7-4D14-BF26-BBA546B92557}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C93A47A-A4D7-4D14-BF26-BBA546B92557}.Release|Any CPU.Build.0 = Release|Any CPU
+		{356CCEE7-F49B-4148-BA0D-1A9B54A2AD97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{356CCEE7-F49B-4148-BA0D-1A9B54A2AD97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{356CCEE7-F49B-4148-BA0D-1A9B54A2AD97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{356CCEE7-F49B-4148-BA0D-1A9B54A2AD97}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3C93A47A-A4D7-4D14-BF26-BBA546B92557} = {8025306D-E62D-4957-944C-743741206A71}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89C803D2-B126-4625-B464-691B43B1C7D5}
+	EndGlobalSection
+EndGlobal
