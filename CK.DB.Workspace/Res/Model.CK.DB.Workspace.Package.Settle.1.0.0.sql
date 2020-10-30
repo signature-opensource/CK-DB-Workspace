@@ -10,7 +10,7 @@ if @AdminGroupId <> 2 throw 50000, 'Initialization.AdministratorsGroupMustBe2', 
 
 -- This should be done in CK.DB.Acl.
 -- Every member of this Administrator group (Id=2) are "Administrator" on the System acl.
-exec CK.sAclGrantSet 1, 2, @AdminGroupId, 'AdministratorsGroup', 127;
+exec CK.sAclGrantSet 1, @AclId = 1, @ActorIdToGrant = 2, @KeyReason = 'AdministratorsGroup', @GrantLevel = 127;
 
 
 -- The Platform Zone is n°3.
