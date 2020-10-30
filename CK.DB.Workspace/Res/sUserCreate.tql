@@ -9,4 +9,11 @@ begin
     begin
         add column PreferredWorkspaceId = @PreferredWorkspaceId;
     end
+
+    inject "
+        if @PreferredWorkspaceId <> 0
+        begin
+            exec CK.sZoneUserAdd @ActorId, @PreferredWorkspaceId, @UserIdResult;
+        end
+        " into "PostCreate";
 end

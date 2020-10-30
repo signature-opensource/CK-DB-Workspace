@@ -1,32 +1,39 @@
 --[beginscript]
 
-declare @PlatformZoneId int;
-exec CK.sZoneCreate 1, @PlatformZoneId output;
-if @PlatformZoneId <> 2 throw 50000, 'Initialization.PlatformZoneMustBe2', 1;
-exec CK.sGroupGroupNameSet 1, @PlatformZoneId, N'Platform Zone';
-
+-- The Administrators group is n°2.
+-- This should be created by CK.DB.Actor (and named 'Administrators' by CK.DB.Group.SimpleNaming).
 declare @AdminGroupId int;
-exec CK.sGroupCreate 1, @AdminGroupId output, @PlatformZoneId;
+exec CK.sGroupCreate 1, @AdminGroupId output, 0;
 exec CK.sGroupGroupNameSet 1, @AdminGroupId, N'Administrators';
 
-if @AdminGroupId <> 3 throw 50000, 'Initialization.AdminGroupMustBe3', 1;
+if @AdminGroupId <> 2 throw 50000, 'Initialization.AdministratorsGroupMustBe2', 1;
 
--- Creates the SystemAcl ==> TO BE MOVED TO CK.DB.Acl.
-declare @SystemAclId int;
-exec CK.sAclCreate 1, @SystemAclId output;
-update CKCore.tSystem set SystemAclId = @SystemAclId where Id = 1;
--- /TO BE MOVED TO CK.DB.Acl.
+-- This should be done in CK.DB.Acl.
+-- Every member of this Administrator group (Id=2) are "Administrator" on the System acl.
+exec CK.sAclGrantSet 1, 2, @AdminGroupId, 'AdministratorsGroup', 127;
 
--- These lines will be require once the "TO BE MOVED TO CK.DB.Acl" will be done...
--- ...unless we manage to define a standard, fixed, AclId for this SystemAclId. TBI.
+
+-- The Platform Zone is n°3.
+-- This should be created by CK.DB.Zone (and named 'Platform Zone' by CK.DB.Zone.SimpleNaming).
 --
--- declare @SystemAclId int;
--- select @SystemAclId = SystemAclId from CKCore.tSystem where Id = 1;
+-- The fact that it is CK.DB.Zone.SimpleNaming that names the zone is not perfect... Since as soon
+-- as Zone is installed AND Group.SimpleNaming are both installed, the name should be set.
+-- This is perfectly feasible thanks to dynamic sql in one of the 2 packages: they can
+-- adjust their behavior according to the VFeature existence (and potentially its version).
+-- We already have what is needed to do this:
 --
+--    select * from CKCore.tItemVersionStore where ItemType = 'VFeature';
+--
+declare @PlatformZoneId int;
+exec CK.sZoneCreate 1, @PlatformZoneId output;
+exec CK.sGroupGroupNameSet 1, @PlatformZoneId, N'Platform Zone';
+-- We move the 'Administrators' (Id=3) group into the PlatformZone, auto registrering its potential
+-- users in the PlatformZone.
+exec CK.sGroupMove 1, 3, @PlatformZoneId, 2 /*AutoUserRegistration*/;
+-- Every member of the PlatformZone (Id=3) are "Viewer" on the System acl.
+exec CK.sAclGrantSet 1, 1, @PlatformZoneId, 'PlatformZone', 16;
 
--- Every member of the PlatformZone (Id=2) are "Viewer" on the System acl.
-exec CK.sAclGrantSet 1, @SystemAclId, @PlatformZoneId, 'PlatformZone', 16;
--- Every member of the Administrator groupe of the PlatformZone (Id=2) are "Administrator" on the System acl.
-exec CK.sAclGrantSet 1, @SystemAclId, @AdminGroupId, 'AdminGroup', 127;
+
+if @PlatformZoneId <> 3 throw 50000, 'Initialization.PlatformZoneMustBe2', 1;
 
 --[endscript]

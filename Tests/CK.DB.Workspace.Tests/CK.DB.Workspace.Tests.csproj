@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -6,13 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CK.AspNet.Tester" Version="3.1.1" />
-    <PackageReference Include="CKSetup.Core" Version="12.0.2" />
-    <PackageReference Include="CK.Testing.Monitoring" Version="0.18.0" />
+    <PackageReference Include="CK.AspNet.Tester" Version="3.1.2--0003-develop" />
+    <PackageReference Include="CKSetup.Core" Version="12.0.3--0008-develop" />
+    <PackageReference Include="CK.Testing.Monitoring" Version="0.18.1--0008-develop" />
+    <PackageReference Include="CK.DB.Zone.Tests" Version="9.0.2--0012-develop" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CK.DB.Tests.NUnit" Version="14.0.1" />
+    <PackageReference Include="CK.DB.Tests.NUnit" Version="14.0.2--0022-develop" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
@@ -25,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="%24StObjGen\" />
     <Folder Include="Logs\Text\" />
   </ItemGroup>
 
