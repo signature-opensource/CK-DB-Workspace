@@ -1,17 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="**\*.sql;**\*.tql" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="9.0.2--0012-develop" />
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="9.0.2--0012-develop" />
-    <PackageReference Include="CK.DB.Zone" Version="9.0.2--0012-develop" />
+    <PackageReference Include="CK.DB.Acl" Version="9.0.2--0014-develop" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="9.0.2--0014-develop" />
+    <PackageReference Include="CK.DB.Zone" Version="9.0.2--0014-develop" />
   </ItemGroup>
-
 </Project>
