@@ -1,4 +1,5 @@
-﻿environment:
+﻿
+environment:
   CODECAKEBUILDER_SECRET_KEY:
     secure: 8VAzdXgUQaJyFoU3WLf2iPFV/8zPDm9qV4TfOpx8/rg=
   SqlServer/MasterConnectionString: Server=(local)\SQL2017;Database=master;User ID=sa;Password=Password12!
