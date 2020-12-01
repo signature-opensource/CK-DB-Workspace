@@ -6,8 +6,8 @@
     <EmbeddedResource Include="**\*.sql;**\*.tql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="9.0.2--0014-develop" />
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="9.0.2--0014-develop" />
-    <PackageReference Include="CK.DB.Zone" Version="9.0.2--0014-develop" />
+    <PackageReference Include="CK.DB.Acl" Version="9.0.2--0016-develop" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="9.0.2--0016-develop" />
+    <PackageReference Include="CK.DB.Zone" Version="9.0.2--0016-develop" />
   </ItemGroup>
 </Project>
