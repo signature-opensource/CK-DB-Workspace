@@ -274,3 +274,4 @@ appsettings.Development.json
 PickupDirectory/
 
 $StObjGen/
+DBBackup/
