@@ -34,8 +34,8 @@ begin
 	exec CK.sAclGrantSet @ActorId, @AclId, @WorkspaceIdResult, 'Default.Workspace.Level', 16;
     -- ...and configures it: the workspace's administrators have full control.
     exec CK.sAclGrantSet @ActorId, @AclId, @AdminGroupId, 'Workspace.Administrator.Level', 127;
-    -- And the Plateform Administrators group (that is 2 by design) has full control.
-	exec CK.sAclGrantSet 1, @AclId, 2, 'Plateform.Administrator', 127;
+    -- And the Platform Administrators group (that is 2 by design) has full control.
+	exec CK.sAclGrantSet 1, @AclId, 2, 'Platform.Administrator', 127;
 
     -- Inserting the Workspace.
     insert into CK.tWorkspace( WorkspaceId, AdminGroupId, AclId ) values( @WorkspaceIdResult, @AdminGroupId, @AclId );
