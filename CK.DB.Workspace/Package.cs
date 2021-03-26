@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 namespace CK.DB.Workspace
 {
     /// <summary>
-    /// Workspace package handles user's PreferredWorkspaceId colum.
+    /// Workspace package handles user's PreferredWorkspaceId column.
     /// </summary>
-    [SqlPackage( Schema = "CK", ResourcePath = "Res", ResourceType = typeof( Package ) )]
+    [SqlPackage( Schema = "CK", ResourcePath = "Res" )]
     [Versions( "1.0.0" )]
     [SqlObjectItem( "transform:CK.sUserCreate, transform:vUser" )]
     public abstract class Package : SqlPackage
@@ -30,7 +30,7 @@ namespace CK.DB.Workspace
         /// </summary>
         /// <param name="ctx">The call context.</param>
         /// <param name="actorId">The acting actor identifier.</param>
-        /// <param name="userName">The user name (when not unique, a " (n)" suffix is automaticaaly added).</param>
+        /// <param name="userName">The user name (when not unique, a " (n)" suffix is automatically added).</param>
         /// <param name="preferredWorkspaceId">The user's preferred workspace identifier.</param>
         /// <returns>The user identifier, or -1 if the user name is not unique.</returns>
         [SqlProcedure( "transform:sUserCreate" )]
