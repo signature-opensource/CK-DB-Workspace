@@ -5,18 +5,16 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CK.AspNet.Tester" Version="0.0.0--03lt61k-local" />
-    <PackageReference Include="CK.DB.Zone.Tests" Version="0.0.0--03lvuwk-local" />
+    <PackageReference Include="CK.DB.Zone.Tests" Version="0.0.0--03lwu77-local" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CK.DB.Workspace\CK.DB.Workspace.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="%24StObjGen\" />
     <Folder Include="Logs\Text\" />
   </ItemGroup>
 </Project>
