@@ -9,11 +9,11 @@
     <None Remove="Res\Model.CK.WorkspaceTable.Init.1.0.0.to.1.0.1.sql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="14.0.0-r07-02-0022-develop" />
+    <PackageReference Include="CK.DB.Acl" Version="14.0.0-r08" />
     <!-- By default, groups are uniquely named.
          Adding CK.DB.Zone.SimpleNaming to make Group names relative to their Zone is an option.
      -->
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="14.0.0-r07-02-0022-develop" />
-    <PackageReference Include="CK.DB.Zone" Version="14.0.0-r07-02-0022-develop" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="14.0.0-r08" />
+    <PackageReference Include="CK.DB.Zone" Version="14.0.0-r08" />
   </ItemGroup>
 </Project>
