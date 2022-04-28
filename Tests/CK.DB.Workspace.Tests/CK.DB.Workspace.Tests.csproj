@@ -4,8 +4,8 @@
     <IsPackable>False</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CK.AspNet.Tester" Version="4.0.0-r01-01-0002-develop" />
-    <PackageReference Include="CK.DB.Zone.Tests" Version="14.0.0-r08-00-0003-develop" />
+    <PackageReference Include="CK.AspNet.Tester" Version="4.0.0-r01-01" />
+    <PackageReference Include="CK.DB.Zone.Tests" Version="14.0.0-r09" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
