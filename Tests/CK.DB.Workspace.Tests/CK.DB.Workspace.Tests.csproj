@@ -1,22 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>False</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CK.AspNet.Tester" Version="3.1.2" />
-    <PackageReference Include="CK.DB.Zone.Tests" Version="13.0.0" />
+    <PackageReference Include="CK.AspNet.Tester" Version="4.0.0" />
+    <PackageReference Include="CK.DB.Zone.Tests" Version="14.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CK.DB.Workspace\CK.DB.Workspace.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="%24StObjGen\" />
     <Folder Include="Logs\Text\" />
   </ItemGroup>
 </Project>
