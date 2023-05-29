@@ -15,8 +15,6 @@ begin
 
     --[beginsp]
 
-    --<PreCreate revert />
-
     -- The @WorkspaceIdResult is the ZoneId.
     exec CK.sZoneCreate @ActorId, @WorkspaceIdResult output;
     exec CK.sGroupGroupNameSet @ActorId, @WorkspaceIdResult, @WorkspaceName output;
@@ -36,6 +34,8 @@ begin
     exec CK.sAclGrantSet @ActorId, @AclId, @AdminGroupId, 'Workspace.Administrator.Level', 127;
     -- And the Platform Administrators group (that is 2 by design) has full control.
 	exec CK.sAclGrantSet 1, @AclId, 2, 'Platform.Administrator', 127;
+
+    --<PreCreate revert />
 
     -- Inserting the Workspace.
     insert into CK.tWorkspace( WorkspaceId, AdminGroupId, AclId ) values( @WorkspaceIdResult, @AdminGroupId, @AclId );
