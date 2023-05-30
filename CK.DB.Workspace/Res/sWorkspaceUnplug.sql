@@ -1,11 +1,10 @@
 -- SetupConfig: { "Requires": [] }
 --
--- Destroys a Workspace: can work only if there is no Users inside the Workspace except if @ForceDestroy = 1.
-create procedure CK.sWorkspaceDestroy
+-- Destroys a Workspace: can work only if there is no Users inside the Workspace.
+create procedure CK.sWorkspaceUnplug
 (
     @ActorId int, -- not null
-    @WorkspaceId int, -- not null 
-	@ForceDestroy bit = 0
+    @WorkspaceId int -- not null
 )
 as
 begin
@@ -47,24 +46,12 @@ begin
     --<PostClearPreferredWorkspaceId />
 
 
-    --<PreDestroy revert />
+    --<PreUnplug revert />
 
     -- Delete workspace (this frees the AdminGroupId FK).
     delete from CK.tWorkspace where WorkspaceId = @WorkspaceId;
 
-    -- When @ForceDestroy is false, the sZoneDestroy will error if a Group or a User exists.
-    -- The Administrator group BELONGS to the Workspace: even if @ForceDestroy is false, we
-    -- call the sGroupDestroy. Note that if there are any user in it, this will fail since
-    -- we call it with its own @ForceDestroy to false.
-    if @ForceDestroy = 0
-    begin
-        exec CK.sGroupDestroy @ActorId, @AdminGroupId, @ForceDestroy = 0;
-    end
-
-    -- Delete Zone and its Groups.
-    exec CK.sZoneDestroy @ActorId, @WorkspaceId, @ForceDestroy;
-
-    --<PostDestroy />
+    --<PostUnplug />
 
     --[endsp]
 end
