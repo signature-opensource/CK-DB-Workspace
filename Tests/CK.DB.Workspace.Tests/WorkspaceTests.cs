@@ -1,5 +1,7 @@
 using CK.Core;
+using CK.DB.Acl;
 using CK.DB.Actor;
+using CK.DB.Zone;
 using CK.SqlServer;
 using FluentAssertions;
 using NUnit.Framework;
@@ -12,16 +14,15 @@ namespace CK.DB.Workspace.Tests
     [TestFixture]
     public class WorkspaceTests
     {
-
         [Test]
         public void user_created_with_a_preferred_workspace_is_automatically_added_to_the_workspace()
         {
-            var group = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var workspace = TestHelper.StObjMap.StObjs.Obtain<Package>();
+            var group = ObtainPackage<Actor.GroupTable>();
+            var workspace = ObtainPackage<Package>();
 
             using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
 
-            var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace  );
+            var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
 
             var userId = workspace.CreateUser( ctx, 1, Guid.NewGuid().ToString(), w.Workspace.WorkspaceId );
 
@@ -29,12 +30,12 @@ namespace CK.DB.Workspace.Tests
         }
 
         [Test]
-        public void set_user_preferred_workspace_checks_thet_the_user_is_at_least_Viewer_of_the_Workspace()
+        public void set_user_preferred_workspace_checks_that_the_user_is_at_least_Viewer_of_the_Workspace()
         {
-            var acl = TestHelper.StObjMap.StObjs.Obtain<Acl.AclTable>();
-            var user = TestHelper.StObjMap.StObjs.Obtain<UserTable>();
-            var group = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var workspace = TestHelper.StObjMap.StObjs.Obtain<Package>();
+            var acl = ObtainPackage<AclTable>();
+            var user = ObtainPackage<UserTable>();
+            var group = ObtainPackage<Actor.GroupTable>();
+            var workspace = ObtainPackage<Package>();
 
             using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
 
@@ -49,52 +50,85 @@ namespace CK.DB.Workspace.Tests
             workspace.Invoking( _ => _.SetUserPreferredWorkspace( ctx, 1, userId, w.Workspace.WorkspaceId ) ).Should().NotThrow();
 
             workspace.Database.ExecuteScalar<int>( "select PreferredWorkspaceId from CK.tUser where UserId=@0", userId ).Should().Be( w.Workspace.WorkspaceId );
-
         }
 
-
         [Test]
-        public async Task destroy_workspace_cannot_be_done_if_user_exists_unless_forceDestroy_is_specified()
+        public async Task plug_workspace_create_a_workspace_with_same_zone_id_Async()
         {
-            var userTable = TestHelper.StObjMap.StObjs.Obtain<UserTable>();
-            var groupTable = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var workspace = TestHelper.StObjMap.StObjs.Obtain<Package>();
+            var zoneTable = ObtainPackage<ZoneTable>();
+            var workspaceTable = ObtainPackage<WorkspaceTable>();
 
             using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
 
-            // With forceDestroy: true
-            {
-                var w = CreateWorkspaceAndOneAdministrator( ctx, groupTable, workspace );
-                await workspace.WorkspaceTable.Awaiting( _ => _.DestroyWorkspaceAsync( ctx, 1, w.Workspace.WorkspaceId, forceDestroy: true ) ).Should().NotThrowAsync();
-                workspace.Database.ExecuteScalar( "select 1 from CK.vWorkspace where WorkspaceId = @0", w.Workspace.WorkspaceId ).Should().BeNull();
-            }
-            // With forceDestroy: false
-            {
-                var w = CreateWorkspaceAndOneAdministrator( ctx, groupTable, workspace );
+            int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
 
-                // There is the administrator User in the zone. Without forceDestroy, this fails.
-                await workspace.WorkspaceTable.Awaiting( _ => _.DestroyWorkspaceAsync( ctx, 1, w.Workspace.WorkspaceId ) ).Should()
-                        .ThrowAsync<SqlDetailedException>();
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().BeNull();
 
-                // Destroying the Admin user...
-                await userTable.DestroyUserAsync( ctx, 1, w.AdminUserId );
-                // So now it can be destroyed, even with forceDestroy false.
-                await workspace.WorkspaceTable.Awaiting( _ => _.DestroyWorkspaceAsync( ctx, 1, w.Workspace.WorkspaceId, forceDestroy: false ) ).Should().NotThrowAsync();
+            await workspaceTable.PlugWorkspaceAsync( ctx, 1, zoneId );
 
-                workspace.Database.ExecuteScalar( "select 1 from CK.vWorkspace where WorkspaceId = @0", w.Workspace.WorkspaceId ).Should().BeNull();
-            }
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().Be( 1 );
         }
 
         [Test]
-        public async Task random_user_not_admin_cannot_create_workspace_only_PlatformAdministrators_can()
+        public async Task cannot_plug_workspace_if_zone_have_already_a_workspace_Async()
         {
-            var groupTable = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var package = TestHelper.StObjMap.StObjs.Obtain<Package>();
-            var workspaceTable = TestHelper.StObjMap.StObjs.Obtain<WorkspaceTable>();
+            var zoneTable = ObtainPackage<ZoneTable>();
+            var workspaceTable = ObtainPackage<WorkspaceTable>();
+
+            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+
+            int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
+
+            await workspaceTable.PlugWorkspaceAsync( ctx, 1, zoneId );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().Be( 1 );
+
+            await workspaceTable.Invoking( table => table.PlugWorkspaceAsync( ctx, 1, zoneId ) )
+                                .Should().ThrowAsync<Exception>();
+        }
+
+        [Test]
+        public async Task random_user_cannot_plug_a_workspace_Async()
+        {
+            var zoneTable = ObtainPackage<ZoneTable>();
+            var userTalbe = ObtainPackage<UserTable>();
+            var workspaceTable = ObtainPackage<WorkspaceTable>();
+
+            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+
+            int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
+            int userId = await userTalbe.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString() );
+
+            await workspaceTable.Invoking( table => table.PlugWorkspaceAsync( ctx, userId, zoneId ) ).Should().ThrowAsync<Exception>();
+        }
+
+        [Test]
+        public async Task unplug_workspace_destroy_workspace_but_let_zone_Async()
+        {
+            var workspaceTable = ObtainPackage<WorkspaceTable>();
+
+            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+
+            var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+
+            await workspaceTable.UnplugWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
+
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).Should().BeNull();
+        }
+
+        [Test]
+        public async Task random_user_not_admin_cannot_create_workspace_only_PlatformAdministrators_can_Async()
+        {
+            var groupTable = ObtainPackage<Actor.GroupTable>();
+            var package = ObtainPackage<Package>();
+            var workspaceTable = ObtainPackage<WorkspaceTable>();
 
             using var ctx = new SqlStandardCallContext();
 
-            int idUser = package.CreateUser( ctx, 1, Guid.NewGuid().ToString(), 0 );
+            int idUser = await package.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString(), 0 );
 
             await workspaceTable.Awaiting( _ => _.CreateWorkspaceAsync( ctx, idUser, Guid.NewGuid().ToString() ) ).Should()
                                 .ThrowAsync<SqlDetailedException>();
@@ -102,7 +136,7 @@ namespace CK.DB.Workspace.Tests
 
         }
 
-        (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, GroupTable group, Package workspace )
+        static (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, Actor.GroupTable group, Package workspace )
         {
             var w = workspace.WorkspaceTable.CreateWorkspace( ctx, 1, "TestWorkspace" );
             var uId = workspace.CreateUser( ctx, 1, $"Admin-{w.Name}-{Guid.NewGuid()}", w.WorkspaceId );
@@ -113,5 +147,10 @@ namespace CK.DB.Workspace.Tests
             return (w, gId, uId);
         }
 
+        static T ObtainPackage<T>() where T : SqlPackage
+        {
+            return TestHelper.StObjMap.StObjs.Obtain<T>()
+                ?? throw new NullReferenceException( $"Cannot obtain {typeof( T ).Name} package." );
+        }
     }
 }

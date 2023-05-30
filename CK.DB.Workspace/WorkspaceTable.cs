@@ -1,5 +1,4 @@
 using CK.Core;
-using CK.DB.Zone;
 using CK.SqlServer;
 using System.Threading.Tasks;
 
@@ -16,6 +15,24 @@ namespace CK.DB.Workspace
         void StObjConstruct( CK.DB.Zone.ZoneTable zoneTable )
         {
         }
+
+        /// <summary>
+        /// Plug a workspace to an existing zone.
+        /// Creates Zone group Administrator.
+        /// <para>
+        /// This is (by default) possible only for global Administrators (members of the Administrator group
+        /// which has the special reserved identifer 2).
+        /// </para>
+        /// </summary>
+        /// <param name="ctx">The call context to use.</param>
+        /// <param name="actorId">The acting user.</param>
+        /// <param name="zoneId">The zone to decorate.</param>
+        [SqlProcedure( "sWorkspacePlug" )]
+        public abstract void PlugWorkspace( ISqlCallContext ctx, int actorId, int zoneId );
+
+        /// <inheritdoc cref="PlugWorkspace(ISqlCallContext, int, int)"/>
+        [SqlProcedure( "sWorkspacePlug" )]
+        public abstract Task PlugWorkspaceAsync( ISqlCallContext ctx, int actorId, int zoneId );
 
         /// <summary>
         /// Captures the result of the creation of a workspace.
@@ -61,19 +78,19 @@ namespace CK.DB.Workspace
         public abstract Task<NamedWorkspace> CreateWorkspaceAsync( ISqlCallContext ctx, int actorId, string workspaceName );
 
         /// <summary>
-        /// Destroy the Workspace.
+        /// Unplug the Workspace.
         /// This is possible only for workspace Administrators (i.e. the <paramref name="actorId"/> must have Administrator level (127)
         /// on the workspace's acl.
+        /// The Workspace Zone will not be destroy.
         /// </summary>
         /// <param name="ctx">The call context to use.</param>
         /// <param name="actorId">The acting user.</param>
         /// <param name="workspaceId">The workspace identifier.</param>
-        /// <param name="forceDestroy">True to destroy the Zone even it is contains User or Groups (its Groups are destroyed).</param>
-        [SqlProcedure( "sWorkspaceDestroy" )]
-        public abstract void DestroyWorkspace( ISqlCallContext ctx, int actorId, int workspaceId, bool forceDestroy = false );
+        [SqlProcedure( "sWorkspaceUnplug" )]
+        public abstract void UnplugWorkspace( ISqlCallContext ctx, int actorId, int workspaceId );
 
-        /// <inheritdoc cref="DestroyWorkspace"/>.
-        [SqlProcedure( "sWorkspaceDestroy" )]
-        public abstract Task DestroyWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId, bool forceDestroy = false );
+        /// <inheritdoc cref="UnplugWorkspace(ISqlCallContext, int, int)"/>.
+        [SqlProcedure( "sWorkspaceUnplug" )]
+        public abstract Task UnplugWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId );
     }
 }
