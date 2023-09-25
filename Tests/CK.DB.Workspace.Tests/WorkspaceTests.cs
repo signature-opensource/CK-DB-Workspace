@@ -3,11 +3,12 @@ using CK.DB.Acl;
 using CK.DB.Actor;
 using CK.DB.Zone;
 using CK.SqlServer;
+using static CK.Testing.DBSetupTestHelper;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using static CK.Testing.DBSetupTestHelper;
 
 namespace CK.DB.Workspace.Tests
 {
@@ -17,10 +18,11 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public void user_created_with_a_preferred_workspace_is_automatically_added_to_the_workspace()
         {
-            var group = ObtainPackage<Actor.GroupTable>();
-            var workspace = ObtainPackage<Package>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var group = services.GetRequiredService<Actor.GroupTable>();
+            var workspace = services.GetRequiredService<Package>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
 
@@ -32,12 +34,13 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public void set_user_preferred_workspace_checks_that_the_user_is_at_least_Viewer_of_the_Workspace()
         {
-            var acl = ObtainPackage<AclTable>();
-            var user = ObtainPackage<UserTable>();
-            var group = ObtainPackage<Actor.GroupTable>();
-            var workspace = ObtainPackage<Package>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var acl = services.GetRequiredService<AclTable>();
+            var user = services.GetRequiredService<UserTable>();
+            var group = services.GetRequiredService<Actor.GroupTable>();
+            var workspace = services.GetRequiredService<Package>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
             var userId = user.CreateUser( ctx, 1, Guid.NewGuid().ToString() );
@@ -55,10 +58,11 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public async Task plug_workspace_create_a_workspace_with_same_zone_id_Async()
         {
-            var zoneTable = ObtainPackage<ZoneTable>();
-            var workspaceTable = ObtainPackage<WorkspaceTable>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var zoneTable = services.GetRequiredService<ZoneTable>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
 
@@ -72,10 +76,11 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public async Task cannot_plug_workspace_if_zone_have_already_a_workspace_Async()
         {
-            var zoneTable = ObtainPackage<ZoneTable>();
-            var workspaceTable = ObtainPackage<WorkspaceTable>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var zoneTable = services.GetRequiredService<ZoneTable>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
 
@@ -89,11 +94,12 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public async Task random_user_cannot_plug_a_workspace_Async()
         {
-            var zoneTable = ObtainPackage<ZoneTable>();
-            var userTalbe = ObtainPackage<UserTable>();
-            var workspaceTable = ObtainPackage<WorkspaceTable>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var zoneTable = services.GetRequiredService<ZoneTable>();
+            var userTalbe = services.GetRequiredService<UserTable>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
             int userId = await userTalbe.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString() );
@@ -104,9 +110,10 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public async Task unplug_workspace_destroy_workspace_but_let_zone_Async()
         {
-            var workspaceTable = ObtainPackage<WorkspaceTable>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
 
@@ -122,9 +129,10 @@ namespace CK.DB.Workspace.Tests
         [Test]
         public async Task random_user_not_admin_cannot_create_workspace_only_PlatformAdministrators_can_Async()
         {
-            var groupTable = ObtainPackage<Actor.GroupTable>();
-            var package = ObtainPackage<Package>();
-            var workspaceTable = ObtainPackage<WorkspaceTable>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var groupTable = services.GetRequiredService<Actor.GroupTable>();
+            var package = services.GetRequiredService<Package>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
             using var ctx = new SqlStandardCallContext();
 
@@ -132,8 +140,6 @@ namespace CK.DB.Workspace.Tests
 
             await workspaceTable.Awaiting( _ => _.CreateWorkspaceAsync( ctx, idUser, Guid.NewGuid().ToString() ) ).Should()
                                 .ThrowAsync<SqlDetailedException>();
-
-
         }
 
         static (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, Actor.GroupTable group, Package workspace )
@@ -145,12 +151,6 @@ namespace CK.DB.Workspace.Tests
             // ...so we can add it to the group's zone.
             group.AddUser( ctx, 1, gId, uId );
             return (w, gId, uId);
-        }
-
-        static T ObtainPackage<T>() where T : SqlPackage
-        {
-            return TestHelper.StObjMap.StObjs.Obtain<T>()
-                ?? throw new NullReferenceException( $"Cannot obtain {typeof( T ).Name} package." );
         }
     }
 }
