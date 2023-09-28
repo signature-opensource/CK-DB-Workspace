@@ -51,5 +51,6 @@ Following rules are implemented. We don't consider them as *invariants* (they ca
  - The Workspace's Administrators group is granted 127 (Administrator) on its own Acl: any member of this group has full control on the Workspace.
  - The SetUserPreferredWorkspace checks that the user is at least 16 (Viewer) on its new preferred workspace (note that only the GrantLevel is checked, not the fact that the user is a member of the workspace).
  - Only user that are Administrator (127) on a Workspace's Acl can destroy it.
- - When a Workspace is destroyed, users with the preferred workspace will have their `PreferredWorkspaceId` set to 0.
+ - When a Workspace is unplugged, users with the preferred workspace will have their `PreferredWorkspaceId` set to 0.
 
+One Workspace can be plugged to an existing Zone with the method `CK.DB.Workspace.WorkspaceTable.PlugWorkspace`. Conversely, a Workspace can be unplugged from a Zone with the method `CK.DB.Workspace.WorkspaceTable.UnplugWorkspace`. These actions are idempotent.
