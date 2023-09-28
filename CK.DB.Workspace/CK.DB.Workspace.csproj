@@ -18,5 +18,6 @@
      -->
     <PackageReference Include="CK.DB.Group.SimpleNaming" Version="18.0.1--0079-develop" />
     <PackageReference Include="CK.DB.Zone" Version="18.0.1--0079-develop" />
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="18.0.1--0079-develop" />
   </ItemGroup>
 </Project>
