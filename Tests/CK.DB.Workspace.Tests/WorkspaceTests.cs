@@ -173,6 +173,28 @@ namespace CK.DB.Workspace.Tests
                 .Should().ThrowAsync<Exception>();
         }
 
+        [Test]
+        public async Task two_workspace_have_same_administrator_group_name_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            var workspace1 = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+            var workspace2 = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+
+            string? adminGroupName1 = workspaceTable.Database.ExecuteScalar<string>(
+                @"select GroupName from CK.vGroup where ZoneId = @0;",
+                workspace1.WorkspaceId );
+
+            string? adminGroupName2 = workspaceTable.Database.ExecuteScalar<string>(
+                @"select GroupName from CK.vGroup where ZoneId = @0;",
+                workspace2.WorkspaceId );
+
+            adminGroupName1.Should().Be( adminGroupName2 );
+        }
+
         static (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, Actor.GroupTable group, Package workspace )
         {
             var w = workspace.WorkspaceTable.CreateWorkspace( ctx, 1, "TestWorkspace" );
