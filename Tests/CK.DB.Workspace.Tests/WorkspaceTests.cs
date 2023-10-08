@@ -1,27 +1,30 @@
 using CK.Core;
+using CK.DB.Acl;
 using CK.DB.Actor;
+using CK.DB.Zone;
 using CK.SqlServer;
+using static CK.Testing.DBSetupTestHelper;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using static CK.Testing.DBSetupTestHelper;
 
 namespace CK.DB.Workspace.Tests
 {
     [TestFixture]
     public class WorkspaceTests
     {
-
         [Test]
         public void user_created_with_a_preferred_workspace_is_automatically_added_to_the_workspace()
         {
-            var group = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var workspace = TestHelper.StObjMap.StObjs.Obtain<Package>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var group = services.GetRequiredService<Actor.GroupTable>();
+            var workspace = services.GetRequiredService<Package>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
-            var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace  );
+            var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
 
             var userId = workspace.CreateUser( ctx, 1, Guid.NewGuid().ToString(), w.Workspace.WorkspaceId );
 
@@ -29,14 +32,15 @@ namespace CK.DB.Workspace.Tests
         }
 
         [Test]
-        public void set_user_preferred_workspace_checks_thet_the_user_is_at_least_Viewer_of_the_Workspace()
+        public void set_user_preferred_workspace_checks_that_the_user_is_at_least_Viewer_of_the_Workspace()
         {
-            var acl = TestHelper.StObjMap.StObjs.Obtain<Acl.AclTable>();
-            var user = TestHelper.StObjMap.StObjs.Obtain<UserTable>();
-            var group = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var workspace = TestHelper.StObjMap.StObjs.Obtain<Package>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var acl = services.GetRequiredService<AclTable>();
+            var user = services.GetRequiredService<UserTable>();
+            var group = services.GetRequiredService<Actor.GroupTable>();
+            var workspace = services.GetRequiredService<Package>();
 
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
             var userId = user.CreateUser( ctx, 1, Guid.NewGuid().ToString() );
@@ -49,60 +53,149 @@ namespace CK.DB.Workspace.Tests
             workspace.Invoking( _ => _.SetUserPreferredWorkspace( ctx, 1, userId, w.Workspace.WorkspaceId ) ).Should().NotThrow();
 
             workspace.Database.ExecuteScalar<int>( "select PreferredWorkspaceId from CK.tUser where UserId=@0", userId ).Should().Be( w.Workspace.WorkspaceId );
-
-        }
-
-
-        [Test]
-        public async Task destroy_workspace_cannot_be_done_if_user_exists_unless_forceDestroy_is_specified()
-        {
-            var userTable = TestHelper.StObjMap.StObjs.Obtain<UserTable>();
-            var groupTable = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var workspace = TestHelper.StObjMap.StObjs.Obtain<Package>();
-
-            using var ctx = new SqlStandardCallContext( TestHelper.Monitor );
-
-            // With forceDestroy: true
-            {
-                var w = CreateWorkspaceAndOneAdministrator( ctx, groupTable, workspace );
-                await workspace.WorkspaceTable.Awaiting( _ => _.DestroyWorkspaceAsync( ctx, 1, w.Workspace.WorkspaceId, forceDestroy: true ) ).Should().NotThrowAsync();
-                workspace.Database.ExecuteScalar( "select 1 from CK.vWorkspace where WorkspaceId = @0", w.Workspace.WorkspaceId ).Should().BeNull();
-            }
-            // With forceDestroy: false
-            {
-                var w = CreateWorkspaceAndOneAdministrator( ctx, groupTable, workspace );
-
-                // There is the administrator User in the zone. Without forceDestroy, this fails.
-                await workspace.WorkspaceTable.Awaiting( _ => _.DestroyWorkspaceAsync( ctx, 1, w.Workspace.WorkspaceId ) ).Should()
-                        .ThrowAsync<SqlDetailedException>();
-
-                // Destroying the Admin user...
-                await userTable.DestroyUserAsync( ctx, 1, w.AdminUserId );
-                // So now it can be destroyed, even with forceDestroy false.
-                await workspace.WorkspaceTable.Awaiting( _ => _.DestroyWorkspaceAsync( ctx, 1, w.Workspace.WorkspaceId, forceDestroy: false ) ).Should().NotThrowAsync();
-
-                workspace.Database.ExecuteScalar( "select 1 from CK.vWorkspace where WorkspaceId = @0", w.Workspace.WorkspaceId ).Should().BeNull();
-            }
         }
 
         [Test]
-        public async Task random_user_not_admin_cannot_create_workspace_only_PlatformAdministrators_can()
+        public async Task plug_workspace_create_a_workspace_with_same_zone_id_Async()
         {
-            var groupTable = TestHelper.StObjMap.StObjs.Obtain<GroupTable>();
-            var package = TestHelper.StObjMap.StObjs.Obtain<Package>();
-            var workspaceTable = TestHelper.StObjMap.StObjs.Obtain<WorkspaceTable>();
+            using var services = TestHelper.CreateAutomaticServices();
+            var zoneTable = services.GetRequiredService<ZoneTable>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
-            using var ctx = new SqlStandardCallContext();
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
-            int idUser = package.CreateUser( ctx, 1, Guid.NewGuid().ToString(), 0 );
+            int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
+
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().BeNull();
+
+            await workspaceTable.PlugWorkspaceAsync( ctx, 1, zoneId );
+
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().Be( 1 );
+        }
+
+        [Test]
+        public async Task random_user_cannot_plug_a_workspace_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var zoneTable = services.GetRequiredService<ZoneTable>();
+            var userTalbe = services.GetRequiredService<UserTable>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
+            int userId = await userTalbe.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString() );
+
+            await workspaceTable.Invoking( table => table.PlugWorkspaceAsync( ctx, userId, zoneId ) ).Should().ThrowAsync<Exception>();
+        }
+
+        [Test]
+        public async Task unplug_workspace_destroy_workspace_but_let_zone_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+
+            await workspaceTable.UnplugWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
+
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).Should().BeNull();
+        }
+
+        [Test]
+        public async Task plug_workspace_is_idempotent_Async()
+        {
+            using var service = TestHelper.CreateAutomaticServices();
+            var zoneTable = service.GetRequiredService<ZoneTable>();
+            var workspaceTable = service.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
+            WorkspaceExists( workspaceTable, zoneId ).Should().BeFalse();
+
+            for ( int i = 0; i < 10; i++ )
+            {
+                await workspaceTable.PlugWorkspaceAsync( ctx, 1, zoneId );
+                WorkspaceExists( workspaceTable, zoneId ).Should().BeTrue();
+            }
+        }
+
+        [Test]
+        public async Task unplug_workspace_is_idempotent_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeTrue();
+
+            for( int i = 0; i < 10; i++ )
+            {
+                await workspaceTable.UnplugWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
+                WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeFalse();
+            }
+        }
+
+        [Test]
+        public async Task random_user_not_admin_cannot_create_workspace_only_PlatformAdministrators_can_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var groupTable = services.GetRequiredService<Actor.GroupTable>();
+            var package = services.GetRequiredService<Package>();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            int idUser = await package.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString(), 0 );
 
             await workspaceTable.Awaiting( _ => _.CreateWorkspaceAsync( ctx, idUser, Guid.NewGuid().ToString() ) ).Should()
                                 .ThrowAsync<SqlDetailedException>();
-
-
         }
 
-        (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, GroupTable group, Package workspace )
+        [Test]
+        public async Task cannot_unplug_workspaceId_0_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            await workspaceTable.Invoking( table => table.UnplugWorkspaceAsync( ctx, 1, 0 ) )
+                .Should().ThrowAsync<Exception>();
+        }
+
+        [Test]
+        public async Task two_workspace_have_same_administrator_group_name_Async()
+        {
+            using var services = TestHelper.CreateAutomaticServices();
+            var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+            using SqlStandardCallContext ctx = new( TestHelper.Monitor );
+
+            var workspace1 = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+            var workspace2 = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
+
+            string? adminGroupName1 = workspaceTable.Database.ExecuteScalar<string>(
+                @"select GroupName from CK.vGroup where ZoneId = @0;",
+                workspace1.WorkspaceId );
+
+            string? adminGroupName2 = workspaceTable.Database.ExecuteScalar<string>(
+                @"select GroupName from CK.vGroup where ZoneId = @0;",
+                workspace2.WorkspaceId );
+
+            adminGroupName1.Should().Be( adminGroupName2 );
+        }
+
+        static (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, Actor.GroupTable group, Package workspace )
         {
             var w = workspace.WorkspaceTable.CreateWorkspace( ctx, 1, "TestWorkspace" );
             var uId = workspace.CreateUser( ctx, 1, $"Admin-{w.Name}-{Guid.NewGuid()}", w.WorkspaceId );
@@ -113,5 +206,9 @@ namespace CK.DB.Workspace.Tests
             return (w, gId, uId);
         }
 
+        static bool WorkspaceExists( SqlPackage pkg, int workspaceId )
+            => pkg.Database.ExecuteScalar<int>(
+                @"select isnull((select 1 from CK.tWorkspace where WorkspaceId = @0), 0);",
+                workspaceId ) > 0;
     }
 }
