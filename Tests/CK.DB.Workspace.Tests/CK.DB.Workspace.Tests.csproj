@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CK.AspNet.Tester" Version="4.0.4--0000-develop" />
-    <PackageReference Include="CK.DB.Zone.Tests" Version="19.0.1--0001-develop" />
+    <PackageReference Include="CK.DB.Zone.Tests" Version="19.0.1--0002-develop" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
