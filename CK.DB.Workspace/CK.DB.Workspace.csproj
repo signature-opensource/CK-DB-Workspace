@@ -12,12 +12,12 @@
     <None Remove="Res\**\*.tql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="19.0.1--0004-develop" />
+    <PackageReference Include="CK.DB.Acl" Version="19.1.0" />
     <!-- By default, groups are uniquely named.
          Adding CK.DB.Zone.SimpleNaming to make Group names relative to their Zone is an option.
      -->
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="19.0.1--0004-develop" />
-    <PackageReference Include="CK.DB.Zone" Version="19.0.1--0004-develop" />
-    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="19.0.1--0004-develop" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="19.1.0" />
+    <PackageReference Include="CK.DB.Zone" Version="19.1.0" />
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="19.1.0" />
   </ItemGroup>
 </Project>
