@@ -8,7 +8,7 @@ namespace CK.DB.Workspace
     /// Models CK.tWorkspace table. Handles workspace creation and destruction.
     /// </summary>
     [SqlTable( "tWorkspace", Package = typeof( Package ), ResourcePath = "Res" )]
-    [Versions( "1.0.0, 1.0.1" )]
+    [Versions( "1.0.0, 1.0.1, 1.0.2" )]
     [SqlObjectItem( "vWorkspace" )]
     public abstract class WorkspaceTable : SqlTable
     {
