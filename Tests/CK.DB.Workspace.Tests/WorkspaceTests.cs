@@ -78,13 +78,13 @@ namespace CK.DB.Workspace.Tests
         {
             using var services = TestHelper.CreateAutomaticServices();
             var zoneTable = services.GetRequiredService<ZoneTable>();
-            var userTalbe = services.GetRequiredService<UserTable>();
+            var userTable = services.GetRequiredService<UserTable>();
             var workspaceTable = services.GetRequiredService<WorkspaceTable>();
 
             using SqlStandardCallContext ctx = new( TestHelper.Monitor );
 
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
-            int userId = await userTalbe.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString() );
+            int userId = await userTable.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString() );
 
             await workspaceTable.Invoking( table => table.PlugWorkspaceAsync( ctx, userId, zoneId ) ).Should().ThrowAsync<Exception>();
         }
