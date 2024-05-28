@@ -66,8 +66,8 @@ namespace CK.DB.Workspace
         /// This is (by default) possible only for global Administrators (members of the Administrator group
         /// which has the special reserved identifer 2).
         /// </summary>
-        /// <param name="ctx">The call context to use.</param>
-        /// <param name="actorId">The acting user.</param>
+        /// <param name="ctx">The call context.</param>
+        /// <param name="actorId">The acting actor identifier.</param>
         /// <param name="workspaceName">The name of the workspace to create.</param>
         /// <returns>The name and identifier of the new workspace and the default channel identifier.</returns>
         [SqlProcedure( "sWorkspaceCreate" )]
@@ -83,8 +83,8 @@ namespace CK.DB.Workspace
         /// on the workspace's acl.
         /// The Workspace Zone will not be destroy.
         /// </summary>
-        /// <param name="ctx">The call context to use.</param>
-        /// <param name="actorId">The acting user.</param>
+        /// <param name="ctx">The call context.</param>
+        /// <param name="actorId">The acting actor identifier.</param>
         /// <param name="workspaceId">The workspace identifier.</param>
         [SqlProcedure( "sWorkspaceUnplug" )]
         public abstract void UnplugWorkspace( ISqlCallContext ctx, int actorId, int workspaceId );
@@ -92,5 +92,19 @@ namespace CK.DB.Workspace
         /// <inheritdoc cref="UnplugWorkspace(ISqlCallContext, int, int)"/>.
         [SqlProcedure( "sWorkspaceUnplug" )]
         public abstract Task UnplugWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId );
+
+        /// <summary>
+        /// Destroys a Workspace, optionally destroying its groups.
+        /// </summary>
+        /// <param name="ctx">The call context.</param>
+        /// <param name="actorId">The acting actor identifier.</param>
+        /// <param name="workspaceId">The Workspace identifier to destroy.</param>
+        /// <param name="forceDestroy">True to destroy the Zone even it is contains User or Groups (its Groups are destroyed).</param>
+        [SqlProcedure( "sWorkspaceDestroy" )]
+        public abstract void DestroyWorkspace( ISqlCallContext ctx, int actorId, int workspaceId, bool forceDestroy = false );
+
+        /// <inheritdoc cref="DestroyWorkspace(ISqlCallContext, int, int, bool)"/>
+        [SqlProcedure( "sWorkspaceDestroy" )]
+        public abstract Task DestroyWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId, bool forceDestroy = false );
     }
 }
