@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.sql;**\*.tql" />
@@ -12,12 +11,12 @@
     <None Remove="Res\**\*.tql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="20.0.0" />
+    <PackageReference Include="CK.DB.Acl" Version="21.0.0" />
     <!-- By default, groups are uniquely named.
          Adding CK.DB.Zone.SimpleNaming to make Group names relative to their Zone is an option.
      -->
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="20.0.0" />
-    <PackageReference Include="CK.DB.Zone" Version="20.0.0" />
-    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="20.0.0" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="21.0.0" />
+    <PackageReference Include="CK.DB.Zone" Version="21.0.0" />
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="21.0.0" />
   </ItemGroup>
 </Project>

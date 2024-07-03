@@ -24,7 +24,7 @@ begin
             throw 50000, 'Security.UnexistingWorkspaceOrAdministratorLevelRequired', 1;
 
         --[beginsp]
-    
+
         --<PreClearPreferredWorkspaceId revert />
     
         declare @UserId int;
@@ -49,14 +49,15 @@ begin
     
         --<PostClearPreferredWorkspaceId />
     
-    
         --<PreUnplug revert />
     
         -- Delete workspace (this frees the AdminGroupId FK).
         delete from CK.tWorkspace where WorkspaceId = @WorkspaceId;
     
+        exec CK.sGroupDestroy @ActorId, @AdminGroupId, @ForceDestroy = 1;
+
         --<PostUnplug />
-    
+
         --[endsp]
     end
 end
