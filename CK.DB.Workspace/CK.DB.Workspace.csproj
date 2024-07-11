@@ -2,21 +2,18 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CK.DB.Acl" Version="0.0.0--04yzfbn-develop" />
+    <PackageReference Include="CK.DB.Zone" Version="0.0.0--04yzfbn-develop" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="0.0.0--04yzfbn-develop" />
+    <!-- By default, groups are uniquely named.
+         Adding CK.DB.Zone.SimpleNaming makes Group names relative to their Zone. -->
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="0.0.0--04yzfbn-develop" />
+  </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="**\*.sql;**\*.tql" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="Res\Model.CK.WorkspaceTable.Init.1.0.0.to.1.0.1.sql" />
-    <None Remove="Res\**\*.sql" />
-    <None Remove="Res\**\*.tql" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="0.0.0--04yzfbn-develop" />
-    <!-- By default, groups are uniquely named.
-         Adding CK.DB.Zone.SimpleNaming to make Group names relative to their Zone is an option.
-     -->
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="0.0.0--04yzfbn-develop" />
-    <PackageReference Include="CK.DB.Zone" Version="0.0.0--04yzfbn-develop" />
-    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="0.0.0--04yzfbn-develop" />
-  </ItemGroup>
+
 </Project>

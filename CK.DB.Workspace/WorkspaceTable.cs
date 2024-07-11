@@ -35,6 +35,24 @@ namespace CK.DB.Workspace
         public abstract Task PlugWorkspaceAsync( ISqlCallContext ctx, int actorId, int zoneId );
 
         /// <summary>
+        /// Unplug the Workspace.
+        /// This is possible only for workspace Administrators: <paramref name="actorId"/> must have Administrator level (127)
+        /// on the workspace's acl.
+        /// <para>
+        /// The Zone will not be destroy.
+        /// </para>
+        /// </summary>
+        /// <param name="ctx">The call context.</param>
+        /// <param name="actorId">The acting actor identifier.</param>
+        /// <param name="workspaceId">The workspace identifier.</param>
+        [SqlProcedure( "sWorkspaceUnplug" )]
+        public abstract void UnplugWorkspace( ISqlCallContext ctx, int actorId, int workspaceId );
+
+        /// <inheritdoc cref="UnplugWorkspace(ISqlCallContext, int, int)"/>.
+        [SqlProcedure( "sWorkspaceUnplug" )]
+        public abstract Task UnplugWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId );
+
+        /// <summary>
         /// Captures the result of the creation of a workspace.
         /// </summary>
         public readonly struct NamedWorkspace
@@ -64,34 +82,18 @@ namespace CK.DB.Workspace
         /// <summary>
         /// Creates a new Workspace.
         /// This is (by default) possible only for global Administrators (members of the Administrator group
-        /// which has the special reserved identifer 2).
+        /// which has the special reserved identifier 2).
         /// </summary>
         /// <param name="ctx">The call context.</param>
         /// <param name="actorId">The acting actor identifier.</param>
         /// <param name="workspaceName">The name of the workspace to create.</param>
-        /// <returns>The name and identifier of the new workspace and the default channel identifier.</returns>
+        /// <returns>The name and identifier of the new workspace.</returns>
         [SqlProcedure( "sWorkspaceCreate" )]
         public abstract NamedWorkspace CreateWorkspace( ISqlCallContext ctx, int actorId, string workspaceName );
 
         /// <inheritdoc cref="CreateWorkspace"/>.
         [SqlProcedure( "sWorkspaceCreate" )]
         public abstract Task<NamedWorkspace> CreateWorkspaceAsync( ISqlCallContext ctx, int actorId, string workspaceName );
-
-        /// <summary>
-        /// Unplug the Workspace.
-        /// This is possible only for workspace Administrators (i.e. the <paramref name="actorId"/> must have Administrator level (127)
-        /// on the workspace's acl.
-        /// The Workspace Zone will not be destroy.
-        /// </summary>
-        /// <param name="ctx">The call context.</param>
-        /// <param name="actorId">The acting actor identifier.</param>
-        /// <param name="workspaceId">The workspace identifier.</param>
-        [SqlProcedure( "sWorkspaceUnplug" )]
-        public abstract void UnplugWorkspace( ISqlCallContext ctx, int actorId, int workspaceId );
-
-        /// <inheritdoc cref="UnplugWorkspace(ISqlCallContext, int, int)"/>.
-        [SqlProcedure( "sWorkspaceUnplug" )]
-        public abstract Task UnplugWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId );
 
         /// <summary>
         /// Destroys a Workspace, optionally destroying its groups.

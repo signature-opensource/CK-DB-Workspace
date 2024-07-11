@@ -1,5 +1,6 @@
 using CK.Core;
 using CK.SqlServer;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace CK.DB.Workspace
@@ -12,17 +13,14 @@ namespace CK.DB.Workspace
     [SqlObjectItem( "transform:CK.sUserCreate, transform:vUser" )]
     public abstract class Package : SqlPackage
     {
-        void StObjConstruct(
-            CK.DB.Acl.Package acl,
-            CK.DB.Group.SimpleNaming.Package groupNaming,
-            CK.DB.Zone.Package zone )
+        void StObjConstruct( CK.DB.Acl.Package acl, CK.DB.Zone.SimpleNaming.Package zoneNaming, CK.DB.Zone.Package zone )
         {
         }
 
         /// <summary>
         /// Gets the workspace table that handle workspace creation and destruction.
         /// </summary>
-        [InjectObject]
+        [InjectObject, AllowNull]
         public WorkspaceTable WorkspaceTable { get; private set; }
 
         /// <summary>
