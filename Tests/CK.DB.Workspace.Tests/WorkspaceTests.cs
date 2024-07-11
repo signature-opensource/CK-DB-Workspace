@@ -3,7 +3,7 @@ using CK.DB.Acl;
 using CK.DB.Actor;
 using CK.DB.Zone;
 using CK.SqlServer;
-using static CK.Testing.DBSetupTestHelper;
+using static CK.Testing.MonitorTestHelper;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;

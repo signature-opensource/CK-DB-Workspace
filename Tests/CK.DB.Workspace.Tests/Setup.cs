@@ -1,4 +1,4 @@
-using static CK.Testing.DBSetupTestHelper;
+using static CK.Testing.MonitorTestHelper;
 using NUnit.Framework;
 
 namespace CK.DB.Workspace.Tests
