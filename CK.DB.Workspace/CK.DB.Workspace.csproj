@@ -3,12 +3,12 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="0.0.0--04zk4sj-develop" />
-    <PackageReference Include="CK.DB.Zone" Version="0.0.0--04zk4sj-develop" />
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="0.0.0--04zk4sj-develop" />
+    <PackageReference Include="CK.DB.Acl" Version="0.0.0--04zrd9g-develop" />
+    <PackageReference Include="CK.DB.Zone" Version="0.0.0--04zrd9g-develop" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="0.0.0--04zrd9g-develop" />
     <!-- By default, groups are uniquely named.
          Adding CK.DB.Zone.SimpleNaming makes Group names relative to their Zone. -->
-    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="0.0.0--04zk4sj-develop" />
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="0.0.0--04zrd9g-develop" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.sql;**\*.tql" />
