@@ -1,20 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <IsPackable>True</IsPackable>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CK.AspNet.Tester" Version="4.0.4" />
-    <PackageReference Include="CK.DB.Zone.Tests" Version="21.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageReference Include="CK.DB.Zone.Tests" Version="22.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CK.DB.Workspace\CK.DB.Workspace.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Logs\Text\" />
   </ItemGroup>
 </Project>

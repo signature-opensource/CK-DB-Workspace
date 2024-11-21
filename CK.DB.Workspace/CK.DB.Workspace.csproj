@@ -1,22 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="**\*.sql;**\*.tql" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Res\Model.CK.WorkspaceTable.Init.1.0.0.to.1.0.1.sql" />
-    <None Remove="Res\**\*.sql" />
-    <None Remove="Res\**\*.tql" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="21.0.0" />
+    <PackageReference Include="CK.DB.Acl" Version="22.0.0" />
+    <PackageReference Include="CK.DB.Zone" Version="22.0.0" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="22.0.0" />
     <!-- By default, groups are uniquely named.
-         Adding CK.DB.Zone.SimpleNaming to make Group names relative to their Zone is an option.
-     -->
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="21.0.0" />
-    <PackageReference Include="CK.DB.Zone" Version="21.0.0" />
-    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="21.0.0" />
+         Adding CK.DB.Zone.SimpleNaming makes Group names relative to their Zone. -->
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="22.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="**\*.sql;**\*.tql" />
   </ItemGroup>
 </Project>
