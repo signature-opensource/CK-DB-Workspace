@@ -4,7 +4,7 @@ using CK.DB.Actor;
 using CK.DB.Zone;
 using CK.SqlServer;
 using CK.Testing;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
@@ -29,7 +29,7 @@ public class WorkspaceTests
         {
             var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
             var userId = workspace.CreateUser( ctx, 1, Guid.NewGuid().ToString(), w.Workspace.WorkspaceId );
-            workspace.Database.ExecuteScalar( "select 1 from CK.tActorProfile where ActorId = @0 and GroupId = @1", userId, w.Workspace.WorkspaceId ).Should().Be( 1 );
+            workspace.Database.ExecuteScalar( "select 1 from CK.tActorProfile where ActorId = @0 and GroupId = @1", userId, w.Workspace.WorkspaceId ).ShouldBe( 1 );
         }
     }
 
@@ -49,14 +49,15 @@ public class WorkspaceTests
             var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
             var userId = user.CreateUser( ctx, 1, Guid.NewGuid().ToString() );
 
-            workspace.Invoking( _ => _.SetUserPreferredWorkspace( ctx, 1, userId, w.Workspace.WorkspaceId ) ).Should().Throw<SqlDetailedException>();
+            Util.Invokable( () => workspace.SetUserPreferredWorkspace( ctx, 1, userId, w.Workspace.WorkspaceId ) )
+                     .ShouldThrow<SqlDetailedException>();
 
             int aclId = workspace.Database.ExecuteScalar<int>( "select AclId from CK.tWorkspace where WorkspaceId=@0", w.Workspace.WorkspaceId );
             acl.AclGrantSet( ctx, 1, aclId, userId, "Just for test", 16 );
 
-            workspace.Invoking( _ => _.SetUserPreferredWorkspace( ctx, 1, userId, w.Workspace.WorkspaceId ) ).Should().NotThrow();
+            Util.Invokable( () => workspace.SetUserPreferredWorkspace( ctx, 1, userId, w.Workspace.WorkspaceId ) ).ShouldNotThrow();
 
-            workspace.Database.ExecuteScalar<int>( "select PreferredWorkspaceId from CK.tUser where UserId=@0", userId ).Should().Be( w.Workspace.WorkspaceId );
+            workspace.Database.ExecuteScalar<int>( "select PreferredWorkspaceId from CK.tUser where UserId=@0", userId ).ShouldBe( w.Workspace.WorkspaceId );
         }
     }
 
@@ -74,11 +75,11 @@ public class WorkspaceTests
 
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
 
-            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().BeNull();
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).ShouldBeNull();
 
             await workspaceTable.PlugWorkspaceAsync( ctx, 1, zoneId );
 
-            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).Should().Be( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", zoneId ).ShouldBe( 1 );
         }
     }
 
@@ -96,7 +97,8 @@ public class WorkspaceTests
         {
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
             int userId = await userTable.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString() );
-            await workspaceTable.Invoking( table => table.PlugWorkspaceAsync( ctx, userId, zoneId ) ).Should().ThrowAsync<Exception>();
+            await Util.Awaitable( () => workspaceTable.PlugWorkspaceAsync( ctx, userId, zoneId ) )
+                        .ShouldThrowAsync<Exception>();
         }
     }
 
@@ -113,13 +115,13 @@ public class WorkspaceTests
 
             var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
 
-            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).Should().Be( 1 );
-            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).Should().Be( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).ShouldBe( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).ShouldBe( 1 );
 
             await workspaceTable.UnplugWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
 
-            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).Should().Be( 1 );
-            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).Should().BeNull();
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tZone where ZoneId = @0", workspace.WorkspaceId ).ShouldBe( 1 );
+            workspaceTable.Database.ExecuteScalar<int?>( "select 1 from CK.tWorkspace where WorkspaceId = @0", workspace.WorkspaceId ).ShouldBeNull();
         }
     }
 
@@ -136,12 +138,12 @@ public class WorkspaceTests
         {
 
             int zoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
-            WorkspaceExists( workspaceTable, zoneId ).Should().BeFalse();
+            WorkspaceExists( workspaceTable, zoneId ).ShouldBeFalse();
 
             for( int i = 0; i < 10; i++ )
             {
                 await workspaceTable.PlugWorkspaceAsync( ctx, 1, zoneId );
-                WorkspaceExists( workspaceTable, zoneId ).Should().BeTrue();
+                WorkspaceExists( workspaceTable, zoneId ).ShouldBeTrue();
             }
         }
     }
@@ -158,12 +160,12 @@ public class WorkspaceTests
         {
 
             var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, Guid.NewGuid().ToString() );
-            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeTrue();
+            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).ShouldBeTrue();
 
             for( int i = 0; i < 10; i++ )
             {
                 await workspaceTable.UnplugWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
-                WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeFalse();
+                WorkspaceExists( workspaceTable, workspace.WorkspaceId ).ShouldBeFalse();
             }
         }
     }
@@ -183,8 +185,8 @@ public class WorkspaceTests
 
             int idUser = await package.CreateUserAsync( ctx, 1, Guid.NewGuid().ToString(), 0 );
 
-            await workspaceTable.Awaiting( _ => _.CreateWorkspaceAsync( ctx, idUser, Guid.NewGuid().ToString() ) ).Should()
-                                .ThrowAsync<SqlDetailedException>();
+            await Util.Awaitable( () => workspaceTable.CreateWorkspaceAsync( ctx, idUser, Guid.NewGuid().ToString() ) )
+                          .ShouldThrowAsync<SqlDetailedException>();
         }
     }
 
@@ -199,8 +201,8 @@ public class WorkspaceTests
         using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
         {
 
-            await workspaceTable.Invoking( table => table.UnplugWorkspaceAsync( ctx, 1, 0 ) )
-            .Should().ThrowAsync<Exception>();
+            await Util.Awaitable( () => workspaceTable.UnplugWorkspaceAsync( ctx, 1, 0 ) )
+                      .ShouldThrowAsync<Exception>();
         }
     }
 
@@ -226,7 +228,7 @@ public class WorkspaceTests
                 @"select GroupName from CK.vGroup where ZoneId = @0;",
                 workspace2.WorkspaceId );
 
-            adminGroupName1.Should().Be( adminGroupName2 );
+            adminGroupName1.ShouldBe( adminGroupName2 );
         }
     }
 
@@ -243,25 +245,25 @@ public class WorkspaceTests
 
             var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, NewGuid() );
 
-            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeTrue();
+            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).ShouldBeTrue();
 
             var adminGroupId = workspaceTable.Database.ExecuteScalar<int?>(
                 "select AdminGroupId from CK.tWorkspace where WorkspaceId = @0;",
                 workspace.WorkspaceId );
 
-            adminGroupId.Should().NotBeNull();
+            adminGroupId.ShouldNotBeNull();
 
             await workspaceTable.UnplugWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
 
-            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeFalse();
+            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).ShouldBeFalse();
 
             workspaceTable.Database.ExecuteScalar<int?>(
                 "select isnull( (select 1 from CK.tGroup where GroupId = @0), 0 );",
-                adminGroupId! ).Should().Be( 0 );
+                adminGroupId! ).ShouldBe( 0 );
 
             workspaceTable.Database.ExecuteScalar<int?>(
                 "select isnull( (select 1 from CK.tGroup where GroupId = @0), 0 );",
-                workspace.WorkspaceId ).Should().Be( 1 );
+                workspace.WorkspaceId ).ShouldBe( 1 );
         }
     }
 
@@ -281,19 +283,19 @@ public class WorkspaceTests
 
             var groupId = await groupTable.CreateGroupAsync( ctx, 1, workspace.WorkspaceId );
 
-            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeTrue();
+            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).ShouldBeTrue();
 
             workspaceTable.Database.ExecuteScalar<int>(
                 @"select isnull( (select 1 from CK.tGroup where GroupId = @0 ), 0 );",
-                groupId ).Should().Be( 1 );
+                groupId ).ShouldBe( 1 );
 
             await workspaceTable.DestroyWorkspaceAsync( ctx, 1, workspace.WorkspaceId, forceDestroy: true );
 
-            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).Should().BeFalse();
+            WorkspaceExists( workspaceTable, workspace.WorkspaceId ).ShouldBeFalse();
 
             workspaceTable.Database.ExecuteScalar<int>(
                 @"select isnull( (select GroupId from CK.tGroup where GroupId = @0), 0 );",
-                groupId! ).Should().Be( 0 );
+                groupId! ).ShouldBe( 0 );
         }
     }
 
@@ -308,8 +310,8 @@ public class WorkspaceTests
         using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
         {
 
-            await workspaceTable.Invoking( table => table.DestroyWorkspaceAsync( ctx, 1, 3 /* AdminZone */ ) )
-            .Should().ThrowAsync<Exception>();
+            await Util.Awaitable( () => workspaceTable.DestroyWorkspaceAsync( ctx, 1, 3 /* AdminZone */ ) )
+                          .ShouldThrowAsync<Exception>();
         }
     }
 
@@ -328,16 +330,16 @@ public class WorkspaceTests
 
             var workspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, NewGuid() );
 
-            WorkspaceExists( workspacePkg, workspace.WorkspaceId ).Should().BeTrue();
+            WorkspaceExists( workspacePkg, workspace.WorkspaceId ).ShouldBeTrue();
 
-            await workspaceTable.Invoking( table => table.DestroyWorkspaceAsync( ctx, 0, workspace.WorkspaceId ) )
-                .Should().ThrowAsync<Exception>();
+            await Util.Awaitable( () => workspaceTable.DestroyWorkspaceAsync( ctx, 0, workspace.WorkspaceId ) )
+                .ShouldThrowAsync<Exception>();
 
-            WorkspaceExists( workspacePkg, workspace.WorkspaceId ).Should().BeTrue();
+            WorkspaceExists( workspacePkg, workspace.WorkspaceId ).ShouldBeTrue();
 
             await workspaceTable.DestroyWorkspaceAsync( ctx, 1, workspace.WorkspaceId );
 
-            WorkspaceExists( workspacePkg, workspace.WorkspaceId ).Should().BeFalse();
+            WorkspaceExists( workspacePkg, workspace.WorkspaceId ).ShouldBeFalse();
         }
     }
 
