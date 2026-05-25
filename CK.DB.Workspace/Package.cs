@@ -1,4 +1,6 @@
 using CK.Core;
+using CK.Cris;
+using CK.IO.UserProfile.Workspace;
 using CK.SqlServer;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
@@ -58,4 +60,7 @@ public abstract class Package : SqlPackage
     [SqlProcedure( "sUserPreferredWorkspaceIdSet" )]
     public abstract void SetUserPreferredWorkspace( ISqlCallContext ctx, int actorId, int userId, int workspaceId );
 
+    [CommandHandler]
+    [SqlProcedure( "sUserPreferredWorkspaceIdSet" )]
+    public abstract Task<ISetPreferredWorkspaceIdCommandResult> SetPreferredWorkspaceIdAsync( ISqlCallContext ctx, [ParameterSource] ISetPreferredWorkspaceIdCommand command );
 }
