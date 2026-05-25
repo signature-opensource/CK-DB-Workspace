@@ -18,9 +18,9 @@ public class IncomingValidators : IRealObject
     public virtual void ValidateDestroyWorkspaceCommand( IDestroyWorkspaceCommand cmd, UserMessageCollector collector )
     {
         // 0/1/2/3 are reserved (anonymous, System, Administrators, AdminZone).
-        if( cmd.TargetWorkspaceId <= 3 )
+        if( cmd.WorkspaceId <= 3 )
         {
-            collector.Error( "TargetWorkspaceId must be greater than 3.", "Workspace.InvalidTargetWorkspaceId" );
+            collector.Error( "WorkspaceId must be greater than 3.", "Workspace.InvalidWorkspaceId" );
         }
     }
 
@@ -36,18 +36,18 @@ public class IncomingValidators : IRealObject
     [IncomingValidator]
     public virtual void ValidateUnplugWorkspaceCommand( IUnplugWorkspaceCommand cmd, UserMessageCollector collector )
     {
-        if( cmd.TargetWorkspaceId <= 0 )
+        if( cmd.WorkspaceId <= 0 )
         {
-            collector.Error( "TargetWorkspaceId must be greater than 0.", "Workspace.InvalidTargetWorkspaceId" );
+            collector.Error( "WorkspaceId must be greater than 0.", "Workspace.InvalidWorkspaceId" );
         }
     }
 
     [IncomingValidator]
     public virtual void ValidateRenameWorkspaceCommand( IRenameWorkspaceCommand cmd, UserMessageCollector collector )
     {
-        if( cmd.TargetWorkspaceId <= 3 )
+        if( cmd.WorkspaceId <= 3 )
         {
-            collector.Error( "TargetWorkspaceId must be greater than 3.", "Workspace.InvalidTargetWorkspaceId" );
+            collector.Error( "WorkspaceId must be greater than 3.", "Workspace.InvalidWorkspaceId" );
         }
         if( string.IsNullOrWhiteSpace( cmd.WorkspaceName ) )
         {

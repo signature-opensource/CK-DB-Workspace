@@ -10,7 +10,7 @@ namespace CK.DB.Workspace;
 [SqlTable( "tWorkspace", Package = typeof( Package ), ResourcePath = "Res" )]
 [Versions( "1.0.0, 1.0.1, 1.0.2" )]
 [SqlObjectItem( "vWorkspace" )]
-public abstract class WorkspaceTable : SqlTable
+public abstract partial class WorkspaceTable : SqlTable
 {
     void StObjConstruct( CK.DB.Zone.ZoneTable zoneTable )
     {
@@ -44,7 +44,7 @@ public abstract class WorkspaceTable : SqlTable
     /// </summary>
     /// <param name="ctx">The call context.</param>
     /// <param name="actorId">The acting actor identifier.</param>
-    /// <param name="workspaceId">The workspace identifier.</param>
+    /// <param name="workspaceId">The workspace identifier to unplug.</param>
     [SqlProcedure( "sWorkspaceUnplug" )]
     public abstract void UnplugWorkspace( ISqlCallContext ctx, int actorId, int workspaceId );
 

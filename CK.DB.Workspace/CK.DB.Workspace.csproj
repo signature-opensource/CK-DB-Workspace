@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+    <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
@@ -9,6 +9,10 @@
     <!-- By default, groups are uniquely named.
          Adding CK.DB.Zone.SimpleNaming makes Group names relative to their Zone. -->
     <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="28.0.1--ci.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CK.IO.Workspace\CK.IO.Workspace.csproj" />
+    <ProjectReference Include="..\CK.IO.UserProfile.Workspace\CK.IO.UserProfile.Workspace.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.sql;**\*.tql" />

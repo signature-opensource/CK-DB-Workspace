@@ -5,7 +5,7 @@ namespace CK.IO.Workspace;
 
 /// <summary>
 /// Part for commands or events that target the user's current workspace context.
-/// Carries the ambient <see cref="WorkspaceId"/> auto-stamped by the CRIS endpoint
+/// Carries the ambient <see cref="CurrentWorkspaceId"/> auto-stamped by the CRIS endpoint
 /// (server-collected default or client-side <c>ambientValuesOverride</c>).
 /// <para>
 /// 0 is the sentinel "no workspace selected" value; validation rejects <c>&lt;= 0</c>.
@@ -18,5 +18,5 @@ public interface IWorkspacePart : ICrisPocoPart
     /// Must be a workspace the actor is a member of.
     /// </summary>
     [AmbientServiceValue]
-    int? WorkspaceId { get; set; }
+    int? CurrentWorkspaceId { get; set; }
 }

@@ -3,18 +3,18 @@
 create procedure CK.sWorkspaceDestroy
 (
     @ActorId int,
-    @TargetWorkspaceId int,
+    @WorkspaceId int,
 	@ForceDestroy bit = 0
 )
 as
 begin
-    if @TargetWorkspaceId <= 3 throw 50000, 'Workspace.InvalidWorkspaceId', 1;
+    if @WorkspaceId <= 3 throw 50000, 'Workspace.InvalidWorkspaceId', 1;
 
     --[beginsp]
 
     declare @AclId int;
     declare @AdminGroupId int;
-    select @AclId = AclId, @AdminGroupId = AdminGroupId from CK.tWorkspace where WorkspaceId = @TargetWorkspaceId;
+    select @AclId = AclId, @AdminGroupId = AdminGroupId from CK.tWorkspace where WorkspaceId = @WorkspaceId;
 
     if @AclId is not null
     begin
@@ -22,9 +22,9 @@ begin
 
         --<PreDestroy revert />
 
-        exec CK.sWorkspaceUnplug @ActorId, @TargetWorkspaceId;
+        exec CK.sWorkspaceUnplug @ActorId, @WorkspaceId;
 
-        exec CK.sZoneDestroy @ActorId, @TargetWorkspaceId, @ForceDestroy;
+        exec CK.sZoneDestroy @ActorId, @WorkspaceId, @ForceDestroy;
 
     	--<PostZoneDestroy />
     end

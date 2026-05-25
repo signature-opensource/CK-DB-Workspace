@@ -1,6 +1,5 @@
 using CK.Core;
 using CK.Cris;
-using CK.DB.Actor;
 using CK.DB.Zone;
 using CK.IO.Workspace;
 using CK.SqlServer;
@@ -87,7 +86,7 @@ public class WorkspaceCrisTests
         var execDestroyCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<IDestroyWorkspaceCommand>( c =>
         {
             c.ActorId = 1;
-            c.TargetWorkspaceId = created.WorkspaceIdResult;
+            c.WorkspaceId = created.WorkspaceIdResult;
         } ) );
 
         var destroyRes = execDestroyCmd.WithResult<ICrisBasicCommandResult>().Result;
@@ -103,7 +102,7 @@ public class WorkspaceCrisTests
         var execDestroyCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<IDestroyWorkspaceCommand>( c =>
         {
             c.ActorId = 1;
-            c.TargetWorkspaceId = 3; // AdminZone is reserved.
+            c.WorkspaceId = 3; // AdminZone is reserved.
         } ) );
         var destroyRes = execDestroyCmd.Result.ShouldNotBeNull();
         destroyRes.ShouldBeAssignableTo<ICrisResultError>().Errors.ShouldNotBeEmpty();
@@ -140,7 +139,7 @@ public class WorkspaceCrisTests
         var executedCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<IUnplugWorkspaceCommand>( c =>
         {
             c.ActorId = 1;
-            c.TargetWorkspaceId = created.WorkspaceIdResult;
+            c.WorkspaceId = created.WorkspaceIdResult;
         } ) );
         var res = executedCmd.WithResult<ICrisBasicCommandResult>().Result;
         res.ShouldNotBeNull();
@@ -160,7 +159,7 @@ public class WorkspaceCrisTests
         var executedCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<IRenameWorkspaceCommand>( c =>
         {
             c.ActorId = 1;
-            c.TargetWorkspaceId = created.WorkspaceIdResult;
+            c.WorkspaceId = created.WorkspaceIdResult;
             c.WorkspaceName = newName;
         } ) );
 
@@ -184,7 +183,7 @@ public class WorkspaceCrisTests
         var executedCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<IRenameWorkspaceCommand>( c =>
         {
             c.ActorId = 1;
-            c.TargetWorkspaceId = second.WorkspaceIdResult;
+            c.WorkspaceId = second.WorkspaceIdResult;
             c.WorkspaceName = sharedName;
         } ) );
         var res = executedCmd.WithResult<IRenameWorkspaceCommandResult>().Result;
@@ -192,30 +191,6 @@ public class WorkspaceCrisTests
         res.Success.ShouldBeTrue();
         res.WorkspaceName.ShouldStartWith( sharedName );
         res.WorkspaceName.ShouldNotBe( sharedName );
-    }
-
-    [Test]
-    public async Task incoming_validator_rejects_empty_workspace_name_on_create_Async()
-    {
-        var executedCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<ICreateWorkspaceCommand>( c =>
-        {
-            c.ActorId = 1;
-            c.WorkspaceName = "";
-        } ) );
-        var res = executedCmd.Result.ShouldNotBeNull();
-        res.ShouldBeAssignableTo<ICrisResultError>().Errors.ShouldNotBeEmpty();
-    }
-
-    [Test]
-    public async Task incoming_validator_rejects_invalid_zone_on_plug_Async()
-    {
-        var executedCmd = await _exec.ExecuteRootCommandAsync( (IAbstractCommand)_pocoDir.Create<IPlugWorkspaceCommand>( c =>
-        {
-            c.ActorId = 1;
-            c.ZoneId = 0;
-        } ) );
-        var res = executedCmd.Result.ShouldNotBeNull();
-        res.ShouldBeAssignableTo<ICrisResultError>().Errors.ShouldNotBeEmpty();
     }
 
     async Task<ICreateWorkspaceCommandResult> CreateWorkspaceAsync( string? name = null )

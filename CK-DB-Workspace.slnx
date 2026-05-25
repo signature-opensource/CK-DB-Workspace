@@ -12,4 +12,6 @@
   </Folder>
   <Project Path="CK.DB.Workspace/CK.DB.Workspace.csproj" />
   <Project Path="CK.Cris.Workspace/CK.Cris.Workspace.csproj" />
+  <Project Path="CK.IO.Workspace/CK.IO.Workspace.csproj" />
+  <Project Path="CK.IO.UserProfile.Workspace/CK.IO.UserProfile.Workspace.csproj" />
 </Solution>

@@ -58,14 +58,13 @@ public abstract partial class WorkspaceTable : SqlTable
     /// <param name="pocoDirectory">The Poco directory used to create the result.</param>
     /// <param name="groupNaming">The Group.SimpleNaming package that exposes the rename SP.</param>
     [CommandHandler]
-    public async Task<IRenameWorkspaceCommandResult> RenameWorkspaceAsync(
-        ISqlCallContext ctx,
-        IRenameWorkspaceCommand command,
-        PocoDirectory pocoDirectory,
-        Group.SimpleNaming.Package groupNaming )
+    public async Task<IRenameWorkspaceCommandResult> RenameWorkspaceAsync( ISqlCallContext ctx,
+                                                                           IRenameWorkspaceCommand command,
+                                                                           PocoDirectory pocoDirectory,
+                                                                           Group.SimpleNaming.Package groupNaming )
     {
         // ICommandAuthNormal guarantees a non-null authenticated ActorId.
-        var actualName = await groupNaming.GroupRenameAsync( ctx, command.ActorId!.Value, command.TargetWorkspaceId, command.WorkspaceName );
+        var actualName = await groupNaming.GroupRenameAsync( ctx, command.ActorId!.Value, command.WorkspaceId, command.WorkspaceName );
         var result = pocoDirectory.Create<IRenameWorkspaceCommandResult>();
         result.WorkspaceName = actualName;
         return result;
