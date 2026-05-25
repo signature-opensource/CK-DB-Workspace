@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>CRIS ambient-value service for current WorkspaceId: validator, ambient-services configurer, and IWorkspaceContext abstraction.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CK.IO.Workspace\CK.IO.Workspace.csproj" />
+  </ItemGroup>
+
+</Project>

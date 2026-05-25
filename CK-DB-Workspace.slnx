@@ -11,4 +11,5 @@
     <Project Path="Tests/CK.DB.Workspace.Tests/CK.DB.Workspace.Tests.csproj" />
   </Folder>
   <Project Path="CK.DB.Workspace/CK.DB.Workspace.csproj" />
+  <Project Path="CK.Cris.Workspace/CK.Cris.Workspace.csproj" />
 </Solution>
