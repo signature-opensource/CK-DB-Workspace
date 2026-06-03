@@ -33,6 +33,91 @@ public class WorkspaceTests
         }
     }
 
+    [TestCase( "" )]
+    [TestCase( "Invalid Name" )]
+    [TestCase( "Invalid,name" )]
+    [TestCase( "Invalid;Name" )]
+    [TestCase( "1nv@l1dN@m3" )]
+    [TestCase( "Invalid|Name" )]
+    public void create_workspace_with_invalid_name( string workspaceName )
+    {
+        using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
+        var services = scopedServices.ServiceProvider;
+
+        var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+        using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
+        {
+            Util.Invokable( () => workspaceTable.CreateWorkspace( ctx, 1, workspaceName ) ).ShouldThrow<SqlDetailedException>();
+        }
+    }
+
+    [TestCase( "" )]
+    [TestCase( "Invalid Name" )]
+    [TestCase( "Invalid,name" )]
+    [TestCase( "Invalid;Name" )]
+    [TestCase( "1nv@l1dN@m3" )]
+    [TestCase( "Invalid|Name" )]
+    public void plug_workspace_from_zone_with_invalid_name( string workspaceName )
+    {
+        using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
+        var services = scopedServices.ServiceProvider;
+
+        var zoneTable = services.GetRequiredService<ZoneTable>();
+        var groupPkg = services.GetRequiredService<Group.SimpleNaming.Package>();
+        var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+        using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
+        {
+            var zoneId = zoneTable.CreateZone( ctx, 1 );
+            groupPkg.GroupRename( ctx, 1, zoneId, workspaceName );
+            Util.Invokable( () => workspaceTable.PlugWorkspace( ctx, 1, zoneId ) ).ShouldThrow<SqlDetailedException>();
+        }
+    }
+
+    [Test]
+    public void plug_workspace_from_zone_with_invalid_name_due_to_default_duplicate_pattern()
+    {
+        using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
+        var services = scopedServices.ServiceProvider;
+
+        var zoneTable = services.GetRequiredService<ZoneTable>();
+        var groupPkg = services.GetRequiredService<Group.SimpleNaming.Package>();
+        var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+        var name = NewGuid();
+
+        using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
+        {
+            var zone1Id = zoneTable.CreateZone( ctx, 1 );
+            groupPkg.GroupRename( ctx, 1, zone1Id, name );
+            zoneTable.Database.ExecuteScalar<string>( "select GroupName from CK.tGroup where GroupId = @0;", zone1Id ).ShouldBe( name );
+            workspaceTable.PlugWorkspace( ctx, 1, zone1Id );
+
+            var zone2Id = zoneTable.CreateZone( ctx, 1 );
+            groupPkg.GroupRename( ctx, 1, zone2Id, name );
+            zoneTable.Database.ExecuteScalar<string>( "select GroupName from CK.tGroup where GroupId = @0;", zone2Id ).ShouldBe( name + " (1)" );
+            Util.Invokable( () => workspaceTable.PlugWorkspace( ctx, 1, zone2Id ) ).ShouldThrow<SqlDetailedException>();
+        }
+    }
+
+    [Test]
+    public void plug_workspace_with_same_name_add_specific_duplicate_pattern()
+    {
+        using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
+        var services = scopedServices.ServiceProvider;
+
+        var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+
+        var workspaceName = NewGuid();
+
+        using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
+        {
+            workspaceTable.CreateWorkspace( ctx, 1, workspaceName ).Name.ShouldBe( workspaceName );
+            workspaceTable.CreateWorkspace( ctx, 1, workspaceName ).Name.ShouldBe( workspaceName + "-1" );
+        }
+    }
+
     [Test]
     public void set_user_preferred_workspace_checks_that_the_user_is_at_least_Viewer_of_the_Workspace()
     {
@@ -345,7 +430,7 @@ public class WorkspaceTests
 
     static (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, Actor.GroupTable group, Package workspace )
     {
-        var w = workspace.WorkspaceTable.CreateWorkspace( ctx, 1, "TestWorkspace" );
+        var w = workspace.WorkspaceTable.CreateWorkspace( ctx, 1, NewGuid() );
         var uId = workspace.CreateUser( ctx, 1, $"Admin-{w.Name}-{Guid.NewGuid()}", w.WorkspaceId );
         var gId = workspace.Database.ExecuteScalar<int>( "select AdminGroupId from CK.tWorkspace where WorkspaceId = @0", w.WorkspaceId );
         // The new admin is already a Zone member...
