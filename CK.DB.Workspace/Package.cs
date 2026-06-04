@@ -13,6 +13,7 @@ namespace CK.DB.Workspace;
 [SqlPackage( Schema = "CK", ResourcePath = "Res" )]
 [Versions( "1.0.0" )]
 [SqlObjectItem( "transform:CK.sUserCreate, transform:vUser" )]
+[SqlObjectItem( "transform:CK.sGroupMove" )]
 public abstract class Package : SqlPackage
 {
     void StObjConstruct( CK.DB.Acl.Package acl, CK.DB.Zone.SimpleNaming.Package zoneNaming, CK.DB.Zone.Package zone )

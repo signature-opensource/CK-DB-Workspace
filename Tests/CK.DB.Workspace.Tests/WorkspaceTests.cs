@@ -188,6 +188,37 @@ public class WorkspaceTests
     }
 
     [Test]
+    public async Task move_workspace_with_MoveGroup_add_workspace_pattern_suffix_Async()
+    {
+        using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
+        var services = scopedServices.ServiceProvider;
+
+        var workspaceTable = services.GetRequiredService<WorkspaceTable>();
+        var zoneTable = services.GetRequiredService<ZoneTable>();
+        var groupPkg = services.GetRequiredService<CK.DB.Group.SimpleNaming.Package>();
+        var groupTable = services.GetRequiredService<CK.DB.Zone.GroupTable>();
+
+        var name = NewGuid();
+
+        using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
+        {
+            var parentWorkspace = await workspaceTable.CreateWorkspaceAsync( ctx, 1, name );
+            parentWorkspace.Name.ShouldBe( name );
+
+            var childZoneId = await zoneTable.CreateZoneAsync( ctx, 1 );
+            await groupTable.MoveGroupAsync( ctx, 1, childZoneId, parentWorkspace.WorkspaceId );
+            var childName = await groupPkg.GroupRenameAsync( ctx, 1, childZoneId, name );
+            childName.ShouldBe( name );
+
+            await workspaceTable.PlugWorkspaceAsync( ctx, 1, childZoneId );
+            workspaceTable.Database.ExecuteScalar<string>( "select WorkspaceName from CK.vWorkspace where WorkspaceId = @0;", childZoneId ).ShouldBe( name );
+
+            await groupTable.MoveGroupAsync( ctx, 1, childZoneId, 0 );
+            workspaceTable.Database.ExecuteScalar<string>( "select WorkspaceName from CK.vWorkspace where WorkspaceId = @0;", childZoneId ).ShouldBe( name + "-1" );
+        }
+    }
+
+    [Test]
     public async Task unplug_workspace_destroy_workspace_but_let_zone_Async()
     {
         using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
