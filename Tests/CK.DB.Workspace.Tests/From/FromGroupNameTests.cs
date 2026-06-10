@@ -3,6 +3,6 @@ using NUnit.Framework;
 namespace CK.DB.Workspace.Tests.From;
 
 [TestFixture]
-public class FromZoneTests : CK.DB.Zone.Tests.ZoneTests
+public class FromGroupNameTests: CK.DB.Group.SimpleNaming.Tests.GroupNameTests
 {
 }

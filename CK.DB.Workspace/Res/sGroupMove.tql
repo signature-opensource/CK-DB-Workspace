@@ -1,0 +1,19 @@
+-- SetupConfig: {}
+create transformer on CK.sGroupMove
+as
+begin
+    inject "
+    declare @PatternBefore nvarchar(10) = ' (';
+    declare @PatternAfter nvarchar(10) = ')';
+
+    if exists (select 1 from CK.tWorkspace where WorkspaceId = @GroupId)
+    begin
+        set @PatternBefore = '-';
+        set @PatternAfter = '';
+    end
+
+    " into "PreGroupMove"
+
+    inject ", @PatternBefore, @PatternAfter"
+    after single {exec @GroupNameCorrected = CK.fGroupGroupNameComputeUnique -1, @GroupName};
+end

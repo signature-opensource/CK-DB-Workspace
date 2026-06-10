@@ -8,6 +8,10 @@ as
 begin
     if CK.fAclGrantLevel( @ActorId, 1 ) < 112 throw 50000, 'Security.MustBeSafeAdminOnSystemAcl', 1;
 
+    -- Check if group name is a valid workspace name
+    declare @GroupName nvarchar(128) = (select GroupName from CK.tGroup where GroupId = @ZoneId);
+    if (len(@GroupName) = 0 or patindex('%[^0-9a-zA-Z-._]%', @GroupName) > 0) throw 50000, 'Workspace.InvalidGroupName', 1;
+
     --[beginsp]
 
     -- If a workspace is already plugged to the Zone, do not plug a new workspace.
