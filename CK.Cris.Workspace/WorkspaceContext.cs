@@ -11,7 +11,7 @@ public sealed class WorkspaceContext : IWorkspaceContext
     /// Creates a context with the given <see cref="CurrentWorkspaceId"/>.
     /// </summary>
     /// <param name="workspaceId">The current workspace identifier.</param>
-    public WorkspaceContext( int workspaceId = 0 )
+    public WorkspaceContext( int workspaceId )
     {
         CurrentWorkspaceId = workspaceId;
     }
