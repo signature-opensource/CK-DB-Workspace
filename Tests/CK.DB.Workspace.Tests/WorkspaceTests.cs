@@ -459,6 +459,39 @@ public class WorkspaceTests
         }
     }
 
+    [Test]
+    public void f_user_workspace_grant_level_returns_actor_grant_on_the_workspace()
+    {
+        using var scopedServices = SharedEngine.AutomaticServices.CreateScope();
+        var services = scopedServices.ServiceProvider;
+
+        var acl = services.GetRequiredService<AclTable>();
+        var user = services.GetRequiredService<UserTable>();
+        var group = services.GetRequiredService<Actor.GroupTable>();
+        var workspace = services.GetRequiredService<Package>();
+
+        using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
+        {
+            var w = CreateWorkspaceAndOneAdministrator( ctx, group, workspace );
+            var table = workspace.WorkspaceTable;
+
+            // Workspace admin has full control.
+            table.GetUserWorkspaceGrantLevel( ctx, w.AdminUserId, w.Workspace.WorkspaceId ).ShouldBe( (byte)127 );
+
+            // A random user has no grant.
+            var userId = user.CreateUser( ctx, 1, Guid.NewGuid().ToString() );
+            table.GetUserWorkspaceGrantLevel( ctx, userId, w.Workspace.WorkspaceId ).ShouldBe( (byte)0 );
+
+            // After granting Viewer level (16), the user gets 16.
+            int aclId = workspace.Database.ExecuteScalar<int>( "select AclId from CK.tWorkspace where WorkspaceId=@0", w.Workspace.WorkspaceId );
+            acl.AclGrantSet( ctx, 1, aclId, userId, "Just for test", 16 );
+            table.GetUserWorkspaceGrantLevel( ctx, userId, w.Workspace.WorkspaceId ).ShouldBe( (byte)16 );
+
+            // Unknown workspace => 0.
+            table.GetUserWorkspaceGrantLevel( ctx, 1, int.MaxValue ).ShouldBe( (byte)0 );
+        }
+    }
+
     static (WorkspaceTable.NamedWorkspace Workspace, int AdminGroupId, int AdminUserId) CreateWorkspaceAndOneAdministrator( ISqlCallContext ctx, Actor.GroupTable group, Package workspace )
     {
         var w = workspace.WorkspaceTable.CreateWorkspace( ctx, 1, NewGuid() );
