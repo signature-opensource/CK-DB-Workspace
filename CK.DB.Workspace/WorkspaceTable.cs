@@ -108,4 +108,19 @@ public abstract partial class WorkspaceTable : SqlTable
     /// <inheritdoc cref="DestroyWorkspace(ISqlCallContext, int, int, bool)"/>
     [SqlProcedure( "sWorkspaceDestroy" )]
     public abstract Task DestroyWorkspaceAsync( ISqlCallContext ctx, int actorId, int workspaceId, bool forceDestroy = false );
+
+    /// <summary>
+    /// Gets the GrantLevel (0 = Blind .. 127 = Administrator) that an actor has on a workspace.
+    /// Returns 0 when the workspace does not exist or the actor has no grant.
+    /// </summary>
+    /// <param name="ctx">The call context.</param>
+    /// <param name="actorId">The actor identifier.</param>
+    /// <param name="workspaceId">The workspace identifier.</param>
+    /// <returns>The GrantLevel between 0 and 127.</returns>
+    [SqlScalarFunction( "fUserWorkspaceGrantLevel" )]
+    public abstract byte GetUserWorkspaceGrantLevel( ISqlCallContext ctx, int actorId, int workspaceId );
+
+    /// <inheritdoc cref="GetUserWorkspaceGrantLevel"/>
+    [SqlScalarFunction( "fUserWorkspaceGrantLevel" )]
+    public abstract Task<byte> GetUserWorkspaceGrantLevelAsync( ISqlCallContext ctx, int actorId, int workspaceId );
 }

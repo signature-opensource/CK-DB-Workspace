@@ -10,8 +10,12 @@ namespace CK.Cris.Workspace;
 /// The value is overridden by <c>CrisWorkspaceService.ConfigureWorkspaceContext</c>
 /// from the incoming command's part value.
 /// </para>
+/// <para>
+/// This is an ambient service (like <c>ExtendedCultureInfo</c>): its default value is
+/// provided by <see cref="WorkspaceContextAmbientServiceDefault"/>.
+/// </para>
 /// </summary>
-public interface IWorkspaceContext : IScopedAutoService
+public interface IWorkspaceContext : IAmbientAutoService
 {
     /// <summary>
     /// The current workspace identifier from the incoming command's ambient value.
