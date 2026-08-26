@@ -54,3 +54,4 @@ Following rules are implemented. We don't consider them as *invariants* (they ca
  - When a Workspace is unplugged, users with the preferred workspace will have their `PreferredWorkspaceId` set to 0.
 
 One Workspace can be plugged to an existing Zone with the method `CK.DB.Workspace.WorkspaceTable.PlugWorkspace`. Conversely, a Workspace can be unplugged from a Zone with the method `CK.DB.Workspace.WorkspaceTable.UnplugWorkspace`. These actions are idempotent.
+-
