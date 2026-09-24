@@ -3,12 +3,12 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CK.DB.Acl" Version="29.0.0--ci.1" />
-    <PackageReference Include="CK.DB.Zone" Version="29.0.0--ci.1" />
-    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="29.0.0--ci.1" />
+    <PackageReference Include="CK.DB.Acl" Version="29.0.0--ci.2" />
+    <PackageReference Include="CK.DB.Zone" Version="29.0.0--ci.2" />
+    <PackageReference Include="CK.DB.Group.SimpleNaming" Version="29.0.0--ci.2" />
     <!-- By default, groups are uniquely named.
          Adding CK.DB.Zone.SimpleNaming makes Group names relative to their Zone. -->
-    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="29.0.0--ci.1" />
+    <PackageReference Include="CK.DB.Zone.SimpleNaming" Version="29.0.0--ci.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CK.IO.Workspace\CK.IO.Workspace.csproj" />
