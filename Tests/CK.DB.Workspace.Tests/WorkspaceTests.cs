@@ -499,7 +499,7 @@ public class WorkspaceTests
         var gId = workspace.Database.ExecuteScalar<int>( "select AdminGroupId from CK.tWorkspace where WorkspaceId = @0", w.WorkspaceId );
         // The new admin is already a Zone member...
         // ...so we can add it to the group's zone.
-        group.AddUser( ctx, 1, gId, uId );
+        group.AddMember( ctx, 1, gId, uId );
         return (w, gId, uId);
     }
 
