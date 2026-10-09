@@ -13,7 +13,7 @@ begin
     inject "
         if @PreferredWorkspaceId <> 0
         begin
-            exec CK.sZoneUserAdd @ActorId, @PreferredWorkspaceId, @UserIdResult;
+            exec CK.sZoneMemberAdd @ActorId, @PreferredWorkspaceId, @UserIdResult;
         end
         " into "PostCreate";
 end

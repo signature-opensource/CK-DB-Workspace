@@ -21,7 +21,7 @@ begin
         -- The @AdminGroupId is the workspace's administrators groupId.
         exec CK.sGroupCreate @ActorId, @AdminGroupId output, @ZoneId;
         exec CK.sGroupGroupNameSet @ActorId, @AdminGroupId, 'Administrators';
-        exec CK.sGroupUserAdd @ActorId, @AdminGroupId, @ActorId, 1;
+        exec CK.sGroupMemberAdd @ActorId, @AdminGroupId, @ActorId, 1;
 
         declare @AclId int;
         -- Creating its Acl...
