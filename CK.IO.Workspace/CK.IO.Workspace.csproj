@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CK.IO.Actor" Version="3.0.0-0.cris-auth.1.ci.61" />
+    <PackageReference Include="CK.IO.Actor" Version="3.0.0-0.cris-auth.1.ci.63" />
   </ItemGroup>
 
 </Project>
