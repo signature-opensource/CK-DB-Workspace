@@ -70,8 +70,17 @@ public class WorkspaceTests
         using( var ctx = new SqlStandardCallContext( TestHelper.Monitor ) )
         {
             var zoneId = zoneTable.CreateZone( ctx, 1 );
-            groupPkg.GroupRename( ctx, 1, zoneId, workspaceName );
-            Util.Invokable( () => workspaceTable.PlugWorkspace( ctx, 1, zoneId ) ).ShouldThrow<SqlDetailedException>();
+            try
+            {
+                groupPkg.GroupRename( ctx, 1, zoneId, workspaceName );
+                Util.Invokable( () => workspaceTable.PlugWorkspace( ctx, 1, zoneId ) ).ShouldThrow<SqlDetailedException>();
+            }
+            finally
+            {
+                // The zone is destroyed: the test database is kept from one run to another, and the names of the zones
+                // that would remain (" (1)" to " (99)") would exhaust the resolution of the name clashes.
+                zoneTable.DestroyZone( ctx, 1, zoneId, forceDestroy: true );
+            }
         }
     }
 
